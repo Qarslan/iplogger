@@ -21,7 +21,7 @@ def track():
     save_data(ip, user_agent)
 
     # Redirect ke tujuan asli (misal YouTube)
-    return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    return redirect("https://www.notion.so/")
 
 @app.route("/logs")
 def view_logs():
