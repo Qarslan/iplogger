@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <script>
+        // Kirim data ke backend Flask
+        // fetch("http://192.168.1.100:5000/log", {  // Ganti dengan IP HP kamu
+           fetch("http://10.11.208.165:5000/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userAgent: navigator.userAgent  // Ambil info User-Agent
+            })
+        });
+    </script>
+</head>
+<body>
+    <h1>Welcome!</h1>
+    <p>Enjoy browsing this page.</p>
+</body>
+</html>
